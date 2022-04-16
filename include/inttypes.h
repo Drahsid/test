@@ -1,6 +1,7 @@
 #ifndef INTTYPES_H
 #define INTTYPES_H
 
+/*
 typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
@@ -13,8 +14,10 @@ typedef signed long long s64;
 
 typedef float f32;
 typedef double f64;
+*/
 
 typedef u32 SIZE_TYPE;
+typedef void* POINTER_TYPE;
 
 #ifndef NULL
 #define NULL 0

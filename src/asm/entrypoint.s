@@ -1,15 +1,14 @@
 .set noreorder
 
+.section .text
+
 .global entrypoint
-
-.section .text, "ax"
-
 entrypoint:
-    la      $t2, main
-    la      $sp, gBootStack
+    la      $t2, entrypoint_main
+    la      $sp, gStackBoot
     la      $t0, __bss_start
     la      $t1, __bss_size
-    la      $t3, gBootStackSize
+    la      $t3, gStackSizeBoot
     lw      $t3, 0x0($t3)
 .wipeBss:
     sw      $zero, 0x0($t0)
