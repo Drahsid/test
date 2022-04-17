@@ -5,6 +5,7 @@
 #include "inttypes.h"
 #include "libc.h"
 #include "vec.h"
+#include "linker_symbols.h"
 
 #define DATA_ALIGN64 __attribute__((aligned(64)))
 #define DATA_ALIGN32 __attribute__((aligned(32)))
@@ -12,9 +13,9 @@
 
 #define OFFSETOF(TYPE, ELEMENT) ((SIZE_TYPE)&(((TYPE*)0)->ELEMENT))
 
-#define PI (3.14159265358979323)
-#define TAU (PI * 2.0)
-#define HPI (PI * 0.5)
+#define MATH_PI (3.14159265358979323)
+#define MATH_TAU (MATH_PI * 2.0)
+#define MATH_HPI (MATH_PI * 0.5)
 
 #define DEG2RAD (0.0174532925199433)
 #define RAD2DEG (57.29577951308231)

@@ -1,6 +1,8 @@
 #ifndef SEGMENTS_H
 #define SEGMENTS_H
 
+#define SEGMENT_BASE(__SEGIDX__) (__SEGIDX__ << 24)
+
 enum {
     SEGMENT_RAW = 0,
     SEGMENT_CFB,

@@ -1,44 +1,7 @@
 #include "GfxCtx.h"
 #include "Heap.h"
-#include "linker_symbols.h"
 
 GfxCtx* gpGfxCtx;
-
-static Gfx sClearCFB[] = {
-    gsDPSetColorImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, BASE_RES_X, SEGMENT_CFB << 24),
-    gsDPSetOtherMode(G_CYC_FILL | G_PM_1PRIMITIVE | G_TP_PERSP | G_TD_CLAMP | G_TL_TILE | G_TT_NONE | G_TF_BILERP | G_TC_FILT | G_CK_NONE | G_CD_DISABLE | G_AD_DISABLE, G_AC_NONE | G_ZS_PRIM | G_RM_NOOP | G_RM_NOOP2),
-    gsDPSetScissor(G_SC_NON_INTERLACE, 0, 0, BASE_RES_X, BASE_RES_Y),
-    gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
-    gsDPSetFillColor(0),
-    gsDPFillRectangle(0, 0, BASE_RES_X - 1, BASE_RES_Y - 1),
-    gsSPEndDisplayList()
-};
-
-static Gfx sRdpInit[] = {
-    gsDPSetCycleType(G_CYC_1CYCLE),
-    gsDPPipelineMode(G_PM_1PRIMITIVE),
-    gsDPSetScissor(G_SC_NON_INTERLACE, 0, 0, BASE_RES_X, BASE_RES_Y),
-    gsDPSetTextureLOD(G_TL_TILE),
-    gsDPSetTextureLUT(G_TT_NONE),
-    gsDPSetTextureDetail(G_TD_CLAMP),
-    gsDPSetTexturePersp(G_TP_PERSP),
-    gsDPSetTextureFilter(G_TF_BILERP),
-    gsDPSetTextureConvert(G_TC_FILT),
-    gsDPSetCombineMode(G_CC_SHADE, G_CC_SHADE),
-    gsDPSetCombineKey(G_CK_NONE),
-    gsDPSetAlphaCompare(G_AC_NONE),
-    gsDPSetRenderMode(G_RM_OPA_SURF, G_RM_OPA_SURF2),
-    gsDPSetColorDither(G_CD_DISABLE),
-    gsDPPipeSync(),
-    gsSPEndDisplayList()
-};
-
-static void GfxCtx_RspInit(GfxCtx* thisx) {
-    gSPViewport(thisx->dlist++, &thisx->viewport);
-    gSPClearGeometryMode(thisx->dlist++, G_SHADE | G_SHADING_SMOOTH | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR | G_LOD);
-    gSPTexture(thisx->dlist++, 0, 0, 0, 0, G_OFF);
-    gSPSetGeometryMode(thisx->dlist++, G_SHADE | G_SHADING_SMOOTH);
-}
 
 void GfxCtx_Construct(GfxCtx* thisx) {
     u32 index;
@@ -62,9 +25,6 @@ void GfxCtx_Construct(GfxCtx* thisx) {
         OS_YIELD_DATA_SIZE
     };
 
-    osCreateViManager(OS_PRIORITY_VIMGR);
-    osViSetMode(&osViModeTable[OS_VI_NTSC_HAN1]);
-
     osCreateMesgQueue(&thisx->rspMessageQ, &thisx->rspMessageBuf, 1);
     osCreateMesgQueue(&thisx->rdpMessageQ, &thisx->rdpMessageBuf, 1);
     osCreateMesgQueue(&thisx->retraceMessageQ, &thisx->retraceMessageBuf, 1);
@@ -82,8 +42,8 @@ void GfxCtx_Construct(GfxCtx* thisx) {
     thisx->dlist = thisx->glist[0];
 
     thisx->viewport.vp = (Vp_t){
-	    BASE_RES_X * 2, BASE_RES_Y * 2, G_MAXZ / 2, 0,
-	    BASE_RES_X * 2, BASE_RES_Y * 2, G_MAXZ / 2, 0,
+	    gScreenResX * 2, gScreenResY * 2, G_MAXZ / 2, 0,
+	    gScreenResX * 2, gScreenResY * 2, G_MAXZ / 2, 0,
     };
 }
 
@@ -92,17 +52,49 @@ void GfxCtx_GfxBegin(GfxCtx* thisx) {
 
    thisx->dlist = thisx->glist[thisx->framebufferIndex]; 
 
-    // clear framebuffer
+    // setup common segments
     gSPSegment(thisx->dlist++, SEGMENT_CFB, cfb);
-    gSPSegment(thisx->dlist++, SEGMENT_ZFB, gFramebuffer2);
+    gSPSegment(thisx->dlist++, SEGMENT_ZFB, gFramebuffer[FRAMEBUFFER_INDEX_Z]);
     gSPSegment(thisx->dlist++, SEGMENT_CODE, __code_start);
-    gSPDisplayList(thisx->dlist++, sRdpInit);
-    GfxCtx_RspInit(thisx);
-    gSPDisplayList(thisx->dlist++, sClearCFB);
+
+    // rsp init
+    gSPViewport(thisx->dlist++, &thisx->viewport);
+    gSPClearGeometryMode(thisx->dlist++, 0xFFFFFFFF); // clear everything
+    gSPSetGeometryMode(thisx->dlist++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER);
+    gSPTexture(thisx->dlist++, 0, 0, 0, 0, G_OFF);
+
+    // rdp init
+    gDPSetRenderMode(thisx->dlist++, G_RM_OPA_SURF, G_RM_OPA_SURF2);
+    gDPSetCombineMode(thisx->dlist++, G_CC_SHADE, G_CC_SHADE);
+    gDPSetScissor(thisx->dlist++, G_SC_NON_INTERLACE, 0, 0, gScreenResX, gScreenResY);
+    gDPSetColorDither(thisx->dlist++, G_CD_BAYER);
+
+    // clear zbuffer
+    gDPSetDepthImage(thisx->dlist++, SEGMENT_BASE(SEGMENT_ZFB));
+    gDPSetCycleType(thisx->dlist++, G_CYC_FILL);
+    gDPSetColorImage(thisx->dlist++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gScreenResX, SEGMENT_BASE(SEGMENT_ZFB));
+
+    // fill with max z
+    gDPSetFillColor(thisx->dlist++, GPACK_ZDZ(G_MAXFBZ, 0) << 16 | GPACK_ZDZ(G_MAXFBZ, 0));
+    gDPFillRectangle(thisx->dlist++, 0, 0, gScreenResX - 1, gScreenResY - 1);
+    gDPPipeSync(thisx->dlist++);
+
+    // clear framebuffer
+    gDPSetColorImage(thisx->dlist++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gScreenResX, SEGMENT_BASE(SEGMENT_CFB));
+    gDPSetFillColor(thisx->dlist++, 0);
+    gDPFillRectangle(thisx->dlist++, 0, 0, gScreenResX - 1, gScreenResY - 1);
+    gDPPipeSync(thisx->dlist++);
 
     // initial persp/view
     gSPMatrix(thisx->dlist++, OS_K0_TO_PHYSICAL(&thisx->projection), G_MTX_PROJECTION | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPMatrix(thisx->dlist++, OS_K0_TO_PHYSICAL(&thisx->view), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gDPPipeSync(thisx->dlist++);
+
+    // init various
+    gDPSetCycleType(thisx->dlist++, G_CYC_1CYCLE);
+    gDPSetTexturePersp(thisx->dlist++, G_TP_NONE);
+    gDPSetTextureFilter(thisx->dlist++, G_TF_BILERP);
+
 }
 
 void GfxCtx_GfxEnd(GfxCtx* thisx) {

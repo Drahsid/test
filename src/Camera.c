@@ -65,9 +65,9 @@ void Camera_ApplyEuler(Camera* thisx, Rot3* rot) {
 
     Camera_Vec3Cross(&right, &forward, &up);
 
-    up.x = cosf(rot->x - HPI) * cosf(rot->y);
-    up.y = -sinf(rot->x - HPI);
-    up.z = cosf(rot->x - HPI) * sinf(rot->y);
+    up.x = cosf(rot->x - MATH_HPI) * cosf(rot->y);
+    up.y = -sinf(rot->x - MATH_HPI);
+    up.z = cosf(rot->x - MATH_HPI) * sinf(rot->y);
 
     Camera_Vec3Normalize(&right, &right);
     Camera_Vec3Normalize(&up, &up);

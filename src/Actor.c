@@ -101,21 +101,18 @@ void Actor_DrawAll(GlobalCtx* global) {
             guMtxIdent(&actor->mtxRotate);
             guMtxIdent(&actor->mtxScale);
             guTranslate(&actor->mtxTranslate, actor->pos.x, actor->pos.y, actor->pos.z);
-            guRotate(&actor->mtxRotate, actor->rot.x, 1.0f, 0, 0);
-            guRotate(&actor->mtxRotate, actor->rot.y, 0, 1.0f, 0);
-            guRotate(&actor->mtxRotate, actor->rot.z, 0, 0, 1.0f);
+            guRotateRPY(&actor->mtxRotate, RTOD(actor->rot.roll), RTOD(actor->rot.pitch), RTOD(actor->rot.yaw));
             guScale(&actor->mtxScale, actor->scaleXYZ.x * actor->scale, actor->scaleXYZ.y * actor->scale, actor->scaleXYZ.z * actor->scale);
 
             // setup segment and push matrixes
             gSPSegment(global->gfxCtx.dlist++, SEGMENT_ACTOR, actor);
             gSPMatrix(global->gfxCtx.dlist++, ACTOR_SEGMENT_OFFSET(mtxTranslate), G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
-            gSPMatrix(global->gfxCtx.dlist++, ACTOR_SEGMENT_OFFSET(mtxRotate), G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
-            gSPMatrix(global->gfxCtx.dlist++, ACTOR_SEGMENT_OFFSET(mtxScale), G_MTX_MODELVIEW | G_MTX_PUSH | G_MTX_MUL);
+            gSPMatrix(global->gfxCtx.dlist++, ACTOR_SEGMENT_OFFSET(mtxRotate), G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_MUL);
+            gSPMatrix(global->gfxCtx.dlist++, ACTOR_SEGMENT_OFFSET(mtxScale), G_MTX_MODELVIEW | G_MTX_NOPUSH | G_MTX_MUL);
             actor->draw(actor, global);
             // pop matrixes
             gSPPopMatrix(global->gfxCtx.dlist++, G_MTX_MODELVIEW);
-            gSPPopMatrix(global->gfxCtx.dlist++, G_MTX_MODELVIEW);
-            gSPPopMatrix(global->gfxCtx.dlist++, G_MTX_MODELVIEW);
+            gDPPipeSync(global->gfxCtx.dlist++);
         }
         
         actor = actor->next;

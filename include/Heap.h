@@ -29,6 +29,7 @@ extern void* Heap_Alloc_Tail(Heap* heap, SIZE_TYPE size);
 extern void Heap_Free(Heap* heap, void* address);
 extern void* Heap_Realloc(Heap* heap, void* address, SIZE_TYPE size);
 extern void Heap_Wipe(Heap* heap);
+extern SIZE_TYPE Heap_Get_Free(Heap* heap);
 extern Heap_Block* Heap_Get_Largest_Free(Heap* heap);
 extern void* malloc(SIZE_TYPE size);
 extern void* malloc_tail(SIZE_TYPE size);

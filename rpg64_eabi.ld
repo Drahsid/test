@@ -55,6 +55,13 @@ SECTIONS {
     __stack_end = ADDR(.stack) + SIZEOF(.stack);
     __stack_size = SIZEOF(.stack);
 
+    __framebuffer_lowmem_start = ADDR(.framebuffer_lowmem);
+    .framebuffer_lowmem 0x8038F800 (NOLOAD) : {
+        *(.framebuffer_lowmem.*);
+    }
+    __framebuffer_lowmem_end = ADDR(.framebuffer_lowmem) + SIZEOF(.framebuffer_lowmem);
+    __framebuffer_lowmem_size = SIZEOF(.framebuffer_lowmem);
+
     __framebuffer_start = ADDR(.framebuffer);
     .framebuffer 0x80500000 (NOLOAD) : ALIGN(64) SUBALIGN(0x00100000) {
         *(.framebuffer.*);

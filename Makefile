@@ -104,6 +104,9 @@ $(BUILD_DIR)/%.c.o: %.c
 $(BUILD_DIR)/%.s.o: %.s
 	$(AS) $(AS_FLAGS) -o $@ $<
 
+$(BUILD_DIR)/%.bin.o: %.bin
+	$(LD) -r -b binary -o $@ $<
+
 $(TARGET).elf: dirs tools $(O_FILES) $(BUILD_DIR)/boot.6102.o
 	$(LD) $(O_FILES) -o $@ $(LD_FLAGS)
 

@@ -24,8 +24,7 @@ static Gfx sTriangleGfx[] = {
 static Vec3 sSpawnPos = { 0, 0, 15.0f };
 
 void Actor_Triangle_Step(Actor_Triangle* thisx, GlobalCtx* global) {
-    thisx->actor.rot.roll += 1.0f;
-    //thisx->actor.pos.z = 15.0f + (cosf(global->gfxCtx.time) * 15.0f);
+    thisx->actor.rot.roll += DTOR(2.5f);
 }
 
 void Actor_Triangle_Draw(Actor_Triangle* thisx, GlobalCtx* global) {

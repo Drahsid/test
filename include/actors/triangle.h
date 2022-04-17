@@ -6,8 +6,6 @@
 
 typedef struct {
     Actor actor;
-    u32 deadbeef;
-    OSTime ticks;
 } Actor_Triangle;
 
 extern ActorInit gActorInit_TriangleActor;

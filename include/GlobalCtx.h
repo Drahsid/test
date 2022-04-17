@@ -5,12 +5,14 @@
 #include "GfxCtx.h"
 #include "Heap.h"
 #include "ActorCtx.h"
+#include "ControllerCtx.h"
 #include "Camera.h"
 
 typedef struct {
     GfxCtx gfxCtx;
     Heap heap;
     ActorCtx actorCtx;
+    ControllerCtx controllerCtx;
     Camera camera;
 } GlobalCtx;
 
