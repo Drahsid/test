@@ -31,7 +31,7 @@ void IdleThreadFunction(GlobalCtx* global) {
 
     triActor = Actor_Spawn(global, &gActorInit_CubeActor);
     if (triActor) {
-        triActor->scale = 0.01f;
+        triActor->scale = 0.1f;
         debug_printf("Spawned triangle\n");
     }
     else {
@@ -50,7 +50,6 @@ void MainThreadFunction(GlobalCtx* global) {
     OSTime now;
     OSTime delta;
     u16 perspNorm;
-    u16 a = 0;
 
     debug_printf("Build date %s %s\n", __DATE__, __TIME__);
 
@@ -62,7 +61,7 @@ void MainThreadFunction(GlobalCtx* global) {
         global->camera.pos.y = triActor->pos.y + (cosf(global->gfxCtx.time) * 15.0f);
         global->camera.pos.z = triActor->pos.z + (sinf(global->gfxCtx.time) * 15.0f);
 
-        guPerspective(&global->gfxCtx.projection, &perspNorm, 83.0f, gScreenResX / gScreenResY, 1.0f, G_MAXZ, 1.0f);
+        guPerspective(&global->gfxCtx.projection, &perspNorm, 83.0f, (f32)gScreenResX / (f32)gScreenResY, 10.0f, G_MAXZ, 1.0f);
         guLookAt(&global->gfxCtx.view,
                 global->camera.pos.x, global->camera.pos.y, global->camera.pos.z,
                 triActor->pos.x, triActor->pos.y, triActor->pos.z,

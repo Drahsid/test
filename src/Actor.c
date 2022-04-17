@@ -97,9 +97,6 @@ void Actor_DrawAll(GlobalCtx* global) {
     while (actor != NULLPTR) {
         if (actor->draw != NULLPTR) {
             // setup matrixes
-            guMtxIdent(&actor->mtxTranslate);
-            guMtxIdent(&actor->mtxRotate);
-            guMtxIdent(&actor->mtxScale);
             guTranslate(&actor->mtxTranslate, actor->pos.x, actor->pos.y, actor->pos.z);
             guRotateRPY(&actor->mtxRotate, RTOD(actor->rot.roll), RTOD(actor->rot.pitch), RTOD(actor->rot.yaw));
             guScale(&actor->mtxScale, actor->scaleXYZ.x * actor->scale, actor->scaleXYZ.y * actor->scale, actor->scaleXYZ.z * actor->scale);
