@@ -15,7 +15,7 @@ void Actor_Construct(Actor* thisx) {
     thisx->scale = 1.0f;
     thisx->scaleXYZ.x = 1.0f;
     thisx->scaleXYZ.y = 1.0f;
-    thisx->scaleXYZ.x = 1.0f;
+    thisx->scaleXYZ.z = 1.0f;
     guMtxIdent(&thisx->mtxTranslate);
     guMtxIdent(&thisx->mtxRotate);
     guMtxIdent(&thisx->mtxScale);
@@ -44,7 +44,7 @@ Actor* Actor_Spawn(GlobalCtx* global, ActorInit* init) {
         return NULLPTR;
     }
 
-    memset_u8(actor, 0, sizeof(Actor));
+    memset_u32(actor, 0, sizeof(Actor));
     Actor_Construct(actor);
     Actor_Init(global, init, actor);
     ActorCtx_ActorAdd(&global->actorCtx, actor);

@@ -60,7 +60,7 @@ void GfxCtx_GfxBegin(GfxCtx* thisx) {
     // rsp init
     gSPViewport(thisx->dlist++, &thisx->viewport);
     gSPClearGeometryMode(thisx->dlist++, 0xFFFFFFFF); // clear everything
-    gSPSetGeometryMode(thisx->dlist++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER);
+    gSPSetGeometryMode(thisx->dlist++, G_SHADE | G_SHADING_SMOOTH | G_ZBUFFER | G_CULL_BACK);
     gSPTexture(thisx->dlist++, 0, 0, 0, 0, G_OFF);
 
     // rdp init

@@ -31,8 +31,7 @@ void IdleThreadFunction(GlobalCtx* global) {
 
     triActor = Actor_Spawn(global, &gActorInit_CubeActor);
     if (triActor) {
-        triActor->scale = 0.1f;
-        debug_printf("Spawned triangle\n");
+        debug_printf("Spawned triangle, z scale is %f\n", triActor->scaleXYZ.z);
     }
     else {
         debug_printf("Failed to spawn triangle\n");
@@ -57,11 +56,11 @@ void MainThreadFunction(GlobalCtx* global) {
         //ControllerCtx_Step(&global->controllerCtx);
         Actor_StepAll(global);
 
-        global->camera.pos.x = triActor->pos.x + (cosf(global->gfxCtx.time) * 15.0f);
-        global->camera.pos.y = triActor->pos.y + (cosf(global->gfxCtx.time) * 15.0f);
-        global->camera.pos.z = triActor->pos.z + (sinf(global->gfxCtx.time) * 15.0f);
+        global->camera.pos.x = triActor->pos.x + (cosf(global->gfxCtx.time) * 200.0f);
+        global->camera.pos.y = triActor->pos.y + (cosf(global->gfxCtx.time) * 200.0f);
+        global->camera.pos.z = triActor->pos.z + (sinf(global->gfxCtx.time) * 200.0f);
 
-        guPerspective(&global->gfxCtx.projection, &perspNorm, 83.0f, (f32)gScreenResX / (f32)gScreenResY, 10.0f, G_MAXZ, 1.0f);
+        guPerspective(&global->gfxCtx.projection, &perspNorm, 83.0f, (f32)gScreenResX / (f32)gScreenResY, 50.0f, 20000.0f, 1.0f);
         guLookAt(&global->gfxCtx.view,
                 global->camera.pos.x, global->camera.pos.y, global->camera.pos.z,
                 triActor->pos.x, triActor->pos.y, triActor->pos.z,
@@ -85,7 +84,7 @@ void MainThreadFunction(GlobalCtx* global) {
         global->gfxCtx.frametime = (f64)OS_CYCLES_TO_USEC(delta) / 1000000.0f;
         global->gfxCtx.framerate = 1.0f / global->gfxCtx.frametime;
         global->gfxCtx.time += global->gfxCtx.frametime;
-        debug_printf("time: %.3f\n", global->gfxCtx.time);
+        //debug_printf("time: %.3f\n", global->gfxCtx.time);
     }
 }
 

@@ -29,8 +29,7 @@ void GlobalCtx_Construct(GlobalCtx* thisx) {
     }
     else {
         debug_printf("HIGH MEMORY PRESENT! %X DETECTED\n", mem_size);
-        //FrameBuffer_SetHiRes();
-        FrameBuffer_SetLoRes();
+        FrameBuffer_SetHiRes();
         heap_size = ((SIZE_TYPE)__framebuffer_start - (SIZE_TYPE)__stack_end) - SAFETY_PADDING;
     }
 
